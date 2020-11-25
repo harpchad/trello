@@ -79,6 +79,11 @@ type Card struct {
 	IDLabels []string `json:"idLabels,omitempty"`
 	Labels   []*Label `json:"labels,omitempty"`
 
+	// Map Fields
+	Address      string `json:"address,omitempty"`
+	LocationName string `json:"locationName,omitempty"`
+	Coordinates  string `json:"coordinates"`
+
 	// Custom Fields
 	CustomFieldItems []*CustomFieldItem `json:"customFieldItems,omitempty"`
 
@@ -220,7 +225,7 @@ func (c *Card) Delete() error {
 }
 
 // CreateCard takes a Card and Arguments and POSTs the card.
-func (c *Client) CreateCard(card *Card, extraArgs ...Arguments) error {
+func (c *Client) CreateCard(card *Card, extraArgs ...Arguments) (*Card, error) {
 	path := "cards"
 	args := Arguments{
 		"name":      card.Name,
@@ -239,11 +244,11 @@ func (c *Client) CreateCard(card *Card, extraArgs ...Arguments) error {
 	if err == nil {
 		card.client = c
 	}
-	return err
+	return card, err
 }
 
 // AddCard takes a Card and Arguments and adds the card to the receiver list.
-func (l *List) AddCard(card *Card, extraArgs ...Arguments) error {
+func (l *List) AddCard(card *Card, extraArgs ...Arguments) (*Card, error) {
 	path := fmt.Sprintf("lists/%s/cards", l.ID)
 	args := Arguments{
 		"name":      card.Name,
@@ -263,7 +268,7 @@ func (l *List) AddCard(card *Card, extraArgs ...Arguments) error {
 	} else {
 		err = errors.Wrapf(err, "Error adding card to list %s", l.ID)
 	}
-	return err
+	return card, err
 }
 
 // CopyToList takes a list id and Arguments and returns the matching Card.
