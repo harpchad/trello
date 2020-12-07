@@ -112,7 +112,7 @@ func TestCreateCard(t *testing.T) {
 		IDLabels: []string{"label1", "label2"},
 	}
 
-	err := c.CreateCard(&card, Arguments{"pos": "top"})
+	_, err := c.CreateCard(&card, Arguments{"pos": "top"})
 	if err != nil {
 		t.Error(err)
 	}
@@ -146,7 +146,7 @@ func TestAddCardToList(t *testing.T) {
 		IDLabels: []string{"label1", "label2"},
 	}
 
-	err := l.AddCard(&card, Arguments{"pos": "bottom"})
+	_, err := l.AddCard(&card, Arguments{"pos": "bottom"})
 	if err != nil {
 		t.Error(err)
 	}
