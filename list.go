@@ -24,6 +24,20 @@ type List struct {
 	Cards      []*Card `json:"cards,omitempty"`
 }
 
+// SetClient can be used to override this List's internal connection to the
+// Trello API. Normally, this is set automatically after calls to GetList()
+// from the Client. This method exists for special cases where
+// functions which need a Client need to be called on List structs which
+// weren't created from a Client in the first place.
+func (l *List) SetClient(newClient *Client) {
+	l.client = newClient
+	for _, card := range l.Cards {
+		if card.client == nil {
+			card.SetClient(newClient)
+		}
+	}
+}
+
 // CreatedAt returns the time.Time from the list's id.
 func (l *List) CreatedAt() time.Time {
 	t, _ := IDToTime(l.ID)
@@ -36,10 +50,7 @@ func (c *Client) GetList(listID string, extraArgs ...Arguments) (list *List, err
 	path := fmt.Sprintf("lists/%s", listID)
 	err = c.Get(path, args, &list)
 	if list != nil {
-		list.client = c
-		for i := range list.Cards {
-			list.Cards[i].client = c
-		}
+		list.SetClient(c)
 	}
 	return
 }
@@ -50,10 +61,7 @@ func (b *Board) GetLists(extraArgs ...Arguments) (lists []*List, err error) {
 	path := fmt.Sprintf("boards/%s/lists", b.ID)
 	err = b.client.Get(path, args, &lists)
 	for i := range lists {
-		lists[i].client = b.client
-		for j := range lists[i].Cards {
-			lists[i].Cards[j].client = b.client
-		}
+		lists[i].SetClient(b.client)
 	}
 	return
 }
